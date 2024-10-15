@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SuzanoAPI.Repositories;
 using SuzanoAPI.Request.Ani;
+using SuzanoAPI.UseCase.ANI.GetStatus;
 
 namespace SuzanoAPI.Controllers
 {
-    [Route("[controller]")]
-    [ApiController]
-    public class AniController : ControllerBase
+    public class AniController : SuzanoBaseController
     {
-        private readonly SuzanoDbContext _context;
-        public AniController(SuzanoDbContext context) => _context = context;
-
         [HttpPost("GetStatus")]
-        public IActionResult GetStatus([FromBody] RequestBodyAniJson json)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public IActionResult GetStatus([FromBody] RequestBodyAniJson json,
+                                       [FromServices] GetStatusUseCase useCase)
         {
-            var phone = _context.ani.FirstOrDefault(p => p.Phone == json.phone);
-            if(phone is null) return NotFound();
+            var phone = useCase.Execute(json);
+
+            if(phone is null) return NoContent();
             return Ok(phone.Status);
         }
     }

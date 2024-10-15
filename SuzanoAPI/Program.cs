@@ -1,5 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using SuzanoAPI.Contracts;
 using SuzanoAPI.Repositories;
+using SuzanoAPI.Repositories.DataAcess;
+using SuzanoAPI.UseCase.ANI.GetStatus;
+using SuzanoAPI.UseCase.Msgs_emergenciais.GetCurrent;
+using SuzanoAPI.UseCase.Produtos.GetProduto;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,17 +16,24 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SuzanoDbContext>(options =>
 {
-    options.UseMySQL("server=127.0.0.1;port=3306;user=root;password=Config@123;database=suzano");
+    options.UseMySQL(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddScoped<IAniRepository, AniRepository>();
+builder.Services.AddScoped<IMsgEmergencialRepository, MsgEmergencialRepository>();
+builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+builder.Services.AddScoped<IProdutoRepository, ProdutoRepository>();
+builder.Services.AddScoped<ClienteRepository>();
+
+builder.Services.AddScoped<GetStatusUseCase>();
+builder.Services.AddScoped<GetCurretUseCase>();
+builder.Services.AddScoped<GetProdutoUseCase>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
 app.UseHttpsRedirection();
 
